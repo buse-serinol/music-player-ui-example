@@ -194,5 +194,13 @@ li{
 @media (max-width: 576px){
     .music-player{
         font-size: 14px;
+        
+    }
+   
+}
+
+@media (max-height: 576px){
+    body{
+        height:600px;
     }
 }
