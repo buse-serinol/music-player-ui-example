@@ -28,6 +28,8 @@ let index;
 
 let loop = true;
 
+let isShuffleActive = false;
+
 // sarki listesi
 
 let songsList = [
@@ -67,29 +69,32 @@ const timeFormatter = (timeInput) => {
   return `${minute}:${second}`;
 };
 
-//sarki atama
-
 const playAudio = () => {
-  audio.play()
+  audio.play();
   pauseButton.classList.remove("hide");
   playButton.classList.add("hide");
 };
+//sarki atama
 
 const setSong = (arrayIndex) => {
-  let { name, link, artist, image } = songsList[arrayIndex]
-  audio.src = link
-  songName.innerHTML = name
-  songArtist.innerHTML = artist
-  songImage.src = image
+  if (loop == true && isShuffleActive == true) {
+    arrayIndex = Math.floor(Math.random() * 100) % 4;
+  }
+
+  let { name, link, artist, image } = songsList[arrayIndex];
+  audio.src = link;
+  songName.innerHTML = name;
+  songArtist.innerHTML = artist;
+  songImage.src = image;
 
   audio.onloadedmetadata = () => {
     maxDuration.innerText = timeFormatter(audio.duration);
-  }
+  };
 
-  playListContainer.classList.add("hide")
+  playListContainer.classList.add("hide");
 
-  playAudio()
-}
+  playAudio();
+};
 
 // sıradakini çal
 
@@ -98,73 +103,70 @@ const nextSong = () => {
     if (index == songsList.length - 1) {
       index = 0;
     } else {
-      index++
+      index++;
     }
     setSong(index);
   } else {
     let randIndex = Math.floor(Math.random() * songsList.length);
-    setSong(randIndex)
+    setSong(randIndex);
   }
-}
+};
 
-playListButton.addEventListener('click',()=>{
-    playListContainer.classList.remove('hide')
-})
+playListButton.addEventListener("click", () => {
+  playListContainer.classList.remove("hide");
+});
 
-closeButton.addEventListener('click',()=>{
-    playListContainer.classList.add('hide')
-})
-
+closeButton.addEventListener("click", () => {
+  playListContainer.classList.add("hide");
+});
 
 const pauseAudio = () => {
-  audio.pause()
-  pauseButton.classList.add('hide')
-  playButton.classList.remove('hide')
-}
+  audio.pause();
+  pauseButton.classList.add("hide");
+  playButton.classList.remove("hide");
+};
 
-const previousSong = () =>{
-    if(index > 0){
-        index-=1
-    }else{
-        index = songsList.length - 1
-    }
-    setSong(index)
-    playAudio()
-    
-}
+const previousSong = () => {
+  if (index > 0) {
+    index -= 1;
+  } else {
+    index = songsList.length - 1;
+  }
+  setSong(index);
+  playAudio();
+};
 
-repeatButton.addEventListener('click',()=>{
-    if (repeatButton.classList.contains('active')) {
-        repeatButton.classList.remove('active')
-        audio.loop = false
-        //tekrar kapatıldı
-        
-    } else {
-        repeatButton.classList.add('active')
-        audio.loop = true
-         //tekrar açıldı
-    }  
-})
+repeatButton.addEventListener("click", () => {
+  if (repeatButton.classList.contains("active")) {
+    repeatButton.classList.remove("active");
+    audio.loop = false;
+    //tekrar kapatıldı
+  } else {
+    repeatButton.classList.add("active");
+    audio.loop = true;
+    //tekrar açıldı
+  }
+});
 
-
-shuffleButton.addEventListener('click',()=>{
-    if (shuffleButton.classList.contains('active')) {
-        shuffleButton.classList.remove('active')
-        audio.loop = true
-        //shuffle  açıldı
-        
-    } else {
-        shuffleButton.classList.add('active')
-        audio.loop = false
-         //shuffle kapatıldı
-    }
-})
+shuffleButton.addEventListener("click", () => {
+  if (shuffleButton.classList.contains("active")) {
+    isShuffleActive = false;
+    shuffleButton.classList.remove("active");
+    audio.loop = true;
+    //shuffle  açıldı
+  } else {
+    isShuffleActive = true;
+    shuffleButton.classList.add("active");
+    audio.loop = false;
+    //shuffle kapatıldı
+  }
+});
 
 const initializePlaylist = () =>{
     for(let i in songsList){
         playListSongs.innerHTML += `<li class="playlistSong" onclick="setSong(${i}">
         <div class="playlist-image-container">
-            <img src=${songsList[i].image}
+            <img src="${songsList[i].image}"/>
         </div>
         <div class="playlist-song-details">
             <span id="playlist-song-name">
@@ -178,45 +180,48 @@ const initializePlaylist = () =>{
     }
 }
 
+
+
 //Tıklama yakalama
 
-nextButton.addEventListener('click', nextSong)
-pauseButton.addEventListener('click', pauseAudio)
-playButton.addEventListener('click', playAudio)
-prevButton.addEventListener('click', previousSong)
+nextButton.addEventListener("click", nextSong);
+pauseButton.addEventListener("click", pauseAudio);
+playButton.addEventListener("click", playAudio);
+prevButton.addEventListener("click", previousSong);
 
 //sarki bitisini yakala
-audio.onended = () =>{
-    nextSong()
-}
+audio.onended = () => {
+  nextSong();
+};
 
-setInterval(()=>{
-    currentTimeRef.innerHTML = timeFormatter(audio.currentTime)
-    currentProgress.style.width = (audio.currentTime/audio.duration.toFixed(3)) * 100 + "%"
-},1000)
+setInterval(() => {
+  currentTimeRef.innerHTML = timeFormatter(audio.currentTime);
+  currentProgress.style.width =
+    (audio.currentTime / audio.duration.toFixed(3)) * 100 + "%";
+}, 1000);
 
-progressBar.addEventListener('click', (event)=>{
-    let coordStart = progressBar.getBoundingClientRect().left
+progressBar.addEventListener("click", (event) => {
+  let coordStart = progressBar.getBoundingClientRect().left;
 
-    let coordEnd = event.clientX
-    let progress = (coordEnd - coordStart) / progressBar.offsetWidth
+  let coordEnd = event.clientX;
+  let progress = (coordEnd - coordStart) / progressBar.offsetWidth;
 
-    currentProgress.style.width = progressBar * 100 + "%"
+  currentProgress.style.width = progressBar * 100 + "%";
 
-    audio.currentTime = progress * audio.duration
-    audio.play()
-    pauseButton.classList.remove('hide')
-    playButton.classList.add('hide')
-})
+  audio.currentTime = progress * audio.duration;
+  audio.play();
+  pauseButton.classList.remove("hide");
+  playButton.classList.add("hide");
+});
 
-audio.addEventListener('timeupdate',()=>{
-currentTimeRef.innerText = timeFormatter(audio.currentTime)
-})
+audio.addEventListener("timeupdate", () => {
+  currentTimeRef.innerText = timeFormatter(audio.currentTime);
+});
 
 //ekran yuklenildiginde
 
 window.onload = () => {
-  index = 0
+  index = 0;
   setSong(index);
   pauseAudio();
   initializePlaylist();
